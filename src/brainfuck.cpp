@@ -18,7 +18,7 @@ using namespace std;
 /**
  * Primitive Brainfuck commands
  */
-typedef enum { 
+typedef enum {
     INCREMENT, // +
     DECREMENT, // -
     SHIFT_LEFT, // <
@@ -107,16 +107,28 @@ class Program : public Container {
  */
 void parse(fstream & file, Container * container) {
     char c;
-    // How to peek at the next character
-    c = (char)file.peek();
-    // How to print out that character
-    cout << c;
     // How to read a character from the file and advance to the next character
+
     file >> c;
-    // How to print out that character
-    cout << c;
-    // How to insert a node into the container.
-    container->children.push_back(new CommandNode(c));
+    if (c == '+' || c == '-' || c == '<' || c == '>' || c == ',' || c == '.')
+    {
+        // How to insert a node into the container.
+        container->children.push_back(new CommandNode(c));
+    }
+    //how to peek at the next character
+    c = (char)file.peek();
+    if (c == '['){
+        Loop Brain;
+        parse(file, & Brain);
+        container->children.push_back(new Loop(Brain));
+        file >> c;
+    }
+
+    c = (char)file.peek();
+    if (c == '+' || c == '-' || c == '<' || c == '>' || c == ',' || c == '.')
+    {
+        parse(file, container);
+    }
 }
 
 /**
@@ -128,12 +140,24 @@ class Printer : public Visitor {
     public:
         void visit(const CommandNode * leaf) {
             switch (leaf->command) {
-                case INCREMENT:   cout << '+'; break;
-                case DECREMENT:   cout << '-'; break;
-                case SHIFT_LEFT:  cout << '<'; break;
-                case SHIFT_RIGHT: cout << '>'; break;
-                case INPUT:       cout << ','; break;
-                case OUTPUT:      cout << '.'; break;
+                case INCREMENT:
+                    cout << '+';
+                    break;
+                case DECREMENT:
+                    cout << '-';
+                    break;
+                case SHIFT_LEFT:
+                    cout << '<';
+                    break;
+                case SHIFT_RIGHT:
+                    cout << '>';
+                    break;
+                case INPUT:
+                    cout << ',';
+                    break;
+                case OUTPUT:
+                    cout << '.';
+                    break;
             }
         }
         void visit(const Loop * loop) {
